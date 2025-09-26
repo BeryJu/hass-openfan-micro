@@ -3,7 +3,7 @@ from __future__ import annotations
 from typing import Any
 import logging
 
-from homeassistant.components.sensor import SensorEntity
+from homeassistant.components.sensor import SensorEntity, SensorStateClass
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
@@ -25,6 +25,7 @@ async def async_setup_entry(
 class OpenFanRpmSensor(CoordinatorEntity, SensorEntity):
     _attr_native_unit_of_measurement = "rpm"
     _attr_icon = "mdi:fan"
+    _attr_state_class = SensorStateClass.MEASUREMENT
 
     def __init__(self, device) -> None:
         super().__init__(device.coordinator)
@@ -40,6 +41,12 @@ class OpenFanRpmSensor(CoordinatorEntity, SensorEntity):
             return self._device.device_info()
         except Exception:
             return None
+
+    @property
+    def available(self) -> bool:
+        base = super().available
+        forced = getattr(self.coordinator, "_forced_unavailable", False)
+        return base and not forced
 
     @property
     def native_value(self) -> int | None:

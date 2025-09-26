@@ -1,7 +1,4 @@
-"""Fan entity for OpenFAN Micro.
-
-Exposes on/off and percentage (0..100).
-"""
+"""Fan entity for OpenFAN Micro."""
 from __future__ import annotations
 from typing import Any, Optional
 import logging
@@ -47,6 +44,12 @@ class OpenFanMicroFan(CoordinatorEntity, FanEntity):
             return None
 
     @property
+    def available(self) -> bool:
+        base = super().available
+        forced = getattr(self.coordinator, "_forced_unavailable", False)
+        return base and not forced
+
+    @property
     def percentage(self) -> int | None:
         data = self.coordinator.data or {}
         return data.get("pwm")
@@ -57,7 +60,12 @@ class OpenFanMicroFan(CoordinatorEntity, FanEntity):
         return pct > 0
 
     async def async_set_percentage(self, percentage: int) -> None:
-        pct = max(0, min(100, int(percentage)))
+        # Enforce global min_pwm if >0 (except when turning off)
+        min_pwm = int(getattr(self._device.api, "_min_pwm", 0) or 0)
+        pct = int(percentage)
+        if pct > 0:
+            pct = max(min_pwm, pct)
+        pct = max(0, min(100, pct))
         self._last_pct = pct
         await self._device.api.set_pwm(pct)
         await self.coordinator.async_request_refresh()

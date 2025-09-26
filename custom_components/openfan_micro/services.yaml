@@ -1,0 +1,49 @@
+led_set:
+  name: LED set
+  description: Turn the device status LED on or off (if supported by firmware).
+  fields:
+    entity_id:
+      required: true
+      selector: { entity: { domain: fan } }
+    enabled:
+      required: true
+      selector: { boolean: {} }
+
+set_voltage:
+  name: Set fan supply voltage
+  description: Switch 5V/12V if the firmware supports it.
+  fields:
+    entity_id:
+      required: true
+      selector: { entity: { domain: fan } }
+    volts:
+      required: true
+      selector: { select: { options: [5, 12] } }
+
+calibrate_min:
+  name: Calibrate minimum PWM
+  description: Sweep PWM and detect minimum that reliably spins the fan; stores result in options as min_pwm and marks calibrated.
+  fields:
+    entity_id:
+      required: true
+      selector: { entity: { domain: fan } }
+    from_pct:
+      required: false
+      default: 10
+      selector: { number: { min: 0, max: 50, step: 1, mode: box } }
+    to_pct:
+      required: false
+      default: 40
+      selector: { number: { min: 20, max: 60, step: 1, mode: box } }
+    step:
+      required: false
+      default: 5
+      selector: { number: { min: 1, max: 20, step: 1, mode: box } }
+    rpm_threshold:
+      required: false
+      default: 100
+      selector: { number: { min: 0, max: 1000, step: 10, mode: box } }
+    margin:
+      required: false
+      default: 5
+      selector: { number: { min: 0, max: 20, step: 1, mode: box } }

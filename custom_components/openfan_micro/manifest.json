@@ -1,7 +1,7 @@
 {
   "domain": "openfan_micro",
   "name": "OpenFAN Micro",
-  "version": "0.2.0",
+  "version": "0.3.1-beta.2",
   "config_flow": true,
   "documentation": "https://github.com/bitlisz1/hass-openfan-micro",
   "requirements": [],
